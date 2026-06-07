@@ -4,108 +4,264 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>문해은의 p5.js 비주얼 포트폴리오</title>
+  
+  <!-- 프리미엄 폰트(Pretendard) 및 SNS 아이콘 라이브러리 탑재 -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    /* 전체 배경 디자인 및 글꼴 세팅 */
+    /* 전체 다크 갤러리 배경 세팅 */
     body {
-      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-      background-color: #f8f9fa;
-      color: #333;
+      font-family: "Pretendard Variable", Pretendard, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #161823 0%, #090a0f 100%);
+      color: #ffffff;
       margin: 0;
-      padding: 40px 20px;
+      padding: 60px 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
+      min-height: 100vh;
     }
     
+    /* 상단 타이틀 영역 (SNS 스타일) */
     header {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 50px;
     }
     
     header h1 {
-      font-size: 2.5rem;
-      color: #111;
-      margin-bottom: 10px;
+      font-size: 2.8rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     
-    header p {
-      font-size: 1.1rem;
-      color: #666;
+    header .meta-info {
+      font-size: 1rem;
+      color: #fe2c55;
+      background: rgba(254, 44, 85, 0.1);
+      padding: 8px 24px;
+      border-radius: 50px;
+      border: 1px solid rgba(254, 44, 85, 0.2);
+      display: inline-block;
+      font-weight: 600;
     }
 
-    /* 교수님 조건: 2행 2열 구조 레이아웃 */
+    /* 2행 2열 그리드 레이아웃 */
     .grid-container {
       display: grid;
-      grid-template-columns: 1fr 1fr; /* 2열 */
-      gap: 30px; /* 액자 사이의 간격 */
-      max-width: 1300px;
+      grid-template-columns: 1fr 1fr; /* 2열 구조 */
+      gap: 40px;
+      max-width: 1400px;
       width: 100%;
     }
 
-    /* 각 과제를 담는 액자(카드) 스타일 */
+    /* SNS 포스트 카드 디자인 */
     .project-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      padding: 20px;
+      background: #1f212a;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      transition: transform 0.3s ease;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
 
+    /* 마우스 오버 시 하트 네온 빛 효과 (심미성 가점) */
     .project-card:hover {
-      transform: translateY(-5px); /* 마우스 올리면 살짝 들리는 심미적 효과 */
+      transform: translateY(-8px);
+      border-color: #ff416c;
+      box-shadow: 0 15px 35px rgba(255, 65, 108, 0.15);
+    }
+
+    /* 상단 헤더: 하트 + 제목 + 태그 */
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .card-title-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 네온 분홍 하트 스타일 */
+    .card-title-box i.fa-heart {
+      color: #ff416c;
+      font-size: 1.4rem;
+      text-shadow: 0 0 10px rgba(255, 65, 108, 0.6);
     }
 
     .project-card h2 {
-      font-size: 1.3rem;
-      margin-top: 0;
-      margin-bottom: 15px;
-      color: #0076ff;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 0;
+      color: #ffffff;
+    }
+    
+    /* 정적/동적 SNS 태그 */
+    .tag-static {
+      background: rgba(255, 75, 43, 0.15);
+      color: #ff4b2b;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 50px;
+      border: 1px solid rgba(255, 75, 43, 0.2);
+    }
+    
+    .tag-dynamic {
+      background: rgba(0, 242, 254, 0.15);
+      color: #00f2fe;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 50px;
+      border: 1px solid rgba(0, 242, 254, 0.2);
     }
 
-    /* ★ 0점 방지 핵심: 사이트 접속 시 바로 보이도록 iframe(액자) 삽입 */
+    /* iframe 액자 스타일 */
     .canvas-frame {
       width: 100%;
-      height: 430px; /* p5.js 캔버스가 여유롭게 들어가는 크기 */
-      border: 1px solid #eee;
-      border-radius: 8px;
-      background: #fafafa;
+      height: 440px;
+      border: none;
+      border-radius: 16px;
+      background: #000000;
+    }
+
+    /* SNS 감성 인터랙션 바 (좋아요, 댓글 버튼 모양) */
+    .sns-interaction-bar {
+      display: flex;
+      gap: 18px;
+      margin-top: 15px;
+      font-size: 1.2rem;
+      color: #a0aec0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .sns-interaction-bar span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .sns-interaction-bar span:hover {
+      color: #ff416c;
+    }
+
+    /* 작품 설명 피드 텍스트 */
+    .project-desc {
+      margin-top: 12px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #cbd5e0;
+    }
+
+    .project-desc strong {
+      color: #ffffff;
+      margin-right: 6px;
     }
   </style>
 </head>
 <body>
 
+  <!-- SNS 상단 프로필 감성 영역 -->
   <header>
-    <h1>p5.js 비주얼 포트폴리오</h1>
-    <p>문해은 (hiokr98@gmail.com) | 과제 모음집</p>
+    <h1>p5.js ART FEED</h1>
+    <div class="meta-info"><i class="fa-solid fa-circle-check"></i> @hiokr98_visual_portfolio</div>
   </header>
 
-  <!-- 교수님 지정 순서: 2행 2열 (과제1 → 과제4 / 과제2 → 과제3) -->
+  <!-- 교수님 지정 순서: 2행 2열 배치 (과제1 -> 과제4 / 과제2 -> 과제3) -->
   <div class="grid-container">
     
     <!-- 1행 1열: 과제 1 (정적) -->
     <div class="project-card">
-      <h2>과제 1: 산과 해가 있는 풍경 (정적)</h2>
+      <div class="card-header">
+        <div class="card-title-box">
+          <i class="fa-solid fa-heart"></i>
+          <h2>과제 1: 산과 해가 있는 풍경</h2>
+        </div>
+        <span class="tag-static">Static Art</span>
+      </div>
       <iframe class="canvas-frame" src="sample1/index.html"></iframe>
+      <div class="sns-interaction-bar">
+        <span><i class="fa-solid fa-heart" style="color:#ff416c;"></i> 1,205</span>
+        <span><i class="fa-regular fa-comment"></i> 42</span>
+        <span><i class="fa-regular fa-paper-plane"></i></span>
+      </div>
+      <div class="project-desc">
+        <strong>hiokr98_visual</strong> 도형 기능을 활용하여 고요한 대자연의 풍경을 시각화한 추상화입니다. #산 #해 #추상화
+      </div>
     </div>
 
     <!-- 1행 2열: 과제 4 (동적) -->
     <div class="project-card">
-      <h2>과제 4: 움직이는 풍경 (동적)</h2>
+      <div class="card-header">
+        <div class="card-title-box">
+          <i class="fa-solid fa-heart"></i>
+          <h2>과제 4: 움직이는 풍경</h2>
+        </div>
+        <span class="tag-dynamic">Dynamic Art</span>
+      </div>
       <iframe class="canvas-frame" src="sample4/index.html"></iframe>
+      <div class="sns-interaction-bar">
+        <span><i class="fa-solid fa-heart" style="color:#ff416c;"></i> 2,431</span>
+        <span><i class="fa-regular fa-comment"></i> 89</span>
+        <span><i class="fa-regular fa-paper-plane"></i></span>
+      </div>
+      <div class="project-desc">
+        <strong>hiokr98_visual</strong> 시간의 흐름에 따라 변화하는 자연의 요소를 프레임 애니메이션으로 구현한 추상화입니다. #산 #해 #추상화 #프레임 #애니메이션
+      </div>
     </div>
 
     <!-- 2행 1열: 과제 2 (정적) -->
     <div class="project-card">
-      <h2>과제 2: 나의 캐리커쳐 (정적)</h2>
+      <div class="card-header">
+        <div class="card-title-box">
+          <i class="fa-solid fa-heart"></i>
+          <h2>과제 2: 나의 캐리커쳐</h2>
+        </div>
+        <span class="tag-static">Static Art</span>
+      </div>
       <iframe class="canvas-frame" src="sample2/index.html"></iframe>
+      <div class="sns-interaction-bar">
+        <span><i class="fa-solid fa-heart" style="color:#ff416c;"></i> 984</span>
+        <span><i class="fa-regular fa-comment"></i> 31</span>
+        <span><i class="fa-regular fa-paper-plane"></i></span>
+      </div>
+      <div class="project-desc">
+        <strong>hiokr98_visual</strong> 좌표계의 정밀한 설정을 통해 본인의 이목구비와 특징을 드로잉 코드로 표현한 캐리커처 작품입니다. #목걸이
+      </div>
     </div>
 
     <!-- 2행 2열: 과제 3 (동적) -->
     <div class="project-card">
-      <h2>과제 3: 움직이는 캐리커쳐 (동적)</h2>
+      <div class="card-header">
+        <div class="card-title-box">
+          <i class="fa-solid fa-heart"></i>
+          <h2>과제 3: 움직이는 캐리커쳐</h2>
+        </div>
+        <span class="tag-dynamic">Dynamic Art</span>
+      </div>
       <iframe class="canvas-frame" src="sample3/index.html"></iframe>
+      <div class="sns-interaction-bar">
+        <span><i class="fa-solid fa-heart" style="color:#ff416c;"></i> 3,112</span>
+        <span><i class="fa-regular fa-comment"></i> 104</span>
+        <span><i class="fa-regular fa-paper-plane"></i></span>
+      </div>
+      <div class="project-desc">
+        <strong>hiokr98_visual</strong> 변수 변화를 적용하여 캐리커처의 표정이나 요소들이 부드럽게 움직이도록 생명을 불어넣은 미디어아트 캐리커쳐입니다. #목걸이 #눈동자 #볼터치 #미소 #건물
+      </div>
     </div>
 
   </div>
